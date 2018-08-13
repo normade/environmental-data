@@ -10,7 +10,7 @@ import urequests
 from utime import sleep_ms
 
 
-sleep_ms(1000)
+sleep_ms(4000)
 sensor = dht.DHT22(Pin(4))
 blue_led = Pin(2, Pin.OUT)
 
@@ -23,6 +23,7 @@ while True:
     data_dict['temp'] = str(sensor.temperature())
     data_dict['hum'] = str(sensor.humidity())
     blue_led.off()
+    print("Sending data...")
     response = urequests.post(
         credentials.endpoint,
         data=ujson.dumps(data_dict),
@@ -30,4 +31,4 @@ while True:
     )
     print("Server response: ", response.text)
     blue_led.on()
-    sleep_ms(30000)
+    sleep_ms(3000)
