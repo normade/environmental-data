@@ -21,7 +21,7 @@ class Tempstation():
     TEMP_MAX = 0
     HUM_MIN = 0
     HUM_MAX = 0
-    INTERVAL = 30000
+    INTERVAL = 0
 
     def initialize_controller_data(self):
         """Assign controller values given by the API."""
@@ -38,24 +38,20 @@ class Tempstation():
     def measure_and_post(self):
         """Measure data and post to the API."""
         self.LED_BLUE.off()
-        data_dict = {}
+        values = {}
         self.SENSOR.measure()
-        data_dict['value'] = self.SENSOR.temperature()
-        data_dict['unitId'] = 1
-        resp = urequests.post(
-            credentials.post_data.format(station_ID=self.ID),
-            data=ujson.dumps(data_dict),
-            headers={'Content-Type': 'application/json'}
-        )
-        print("Temp sent: ", resp.status_code, resp.text)
-        data_dict['value'] = self.SENSOR.humidity()
-        data_dict['unitId'] = 2
-        resp = urequests.post(
-            credentials.post_data.format(station_ID=self.ID),
-            data=ujson.dumps(data_dict),
-            headers={'Content-Type': 'application/json'}
-        )
-        print("Hum sent: ", resp.status_code, resp.text)
+        values['temperature'] = [self.SENSOR.temperature(), 1]
+        values['humidity'] = [self.SENSOR.humidity(), 2]
+        for key in values:
+            data_dict = {}
+            data_dict['value'] = values[key][0]
+            data_dict['unitId'] = values[key][1]
+            resp = urequests.post(
+                credentials.post_data.format(station_ID=self.ID),
+                data=ujson.dumps(data_dict),
+                headers={'Content-Type': 'application/json'}
+            )
+            print("Sending ", key, resp.status_code, resp.text)
         self.LED_BLUE.on()
 
 
@@ -66,4 +62,4 @@ def main():
     sleep(5)
     while True:
         temp_stat.measure_and_post()
-        sleep(300)
+        sleep(temp_stat.INTERVAL)
