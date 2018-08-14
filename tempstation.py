@@ -51,7 +51,7 @@ class Tempstation():
                 data=ujson.dumps(data_dict),
                 headers={'Content-Type': 'application/json'}
             )
-            print("Sending ", key, resp.status_code, resp.text)
+            print("Sending", key, resp.status_code, resp.text)
         self.LED_BLUE.on()
 
 
