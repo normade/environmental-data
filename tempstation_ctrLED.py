@@ -11,7 +11,7 @@ from utime import sleep
 
 
 class Tempstation():
-    """Tempstation according the Tempstation API."""
+    """Tempstation according to the Tempstation API."""
 
     SENSOR = dht.DHT22(Pin(4))
     LED_BLUE = Pin(2, Pin.OUT)
