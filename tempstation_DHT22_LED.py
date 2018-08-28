@@ -33,12 +33,35 @@ class Tempstation():
         api_data = urequests.get(credentials.get_controller_data.format(
             hardware_id=self.MAC_ADDRESS)).json()
         self.ID = api_data['id']
-        self.critical_values = api_data['location']['criticalValues']
-        self.TEMP_MIN = api_data['location']['criticalValues'][0]['minValue']
-        self.TEMP_MAX = api_data['location']['criticalValues'][0]['maxValue']
-        self.HUM_MIN = api_data['location']['criticalValues'][1]['minValue']
-        self.HUM_MAX = api_data['location']['criticalValues'][1]['maxValue']
+        critical_values = api_data['location']['criticalValues']
+        for values in critical_values:
+            if(values['id'] == 1):
+                self.TEMP_MIN = values['minValue']
+                self.TEMP_MAX = values['maxValue']
+            if(values['id'] == 2):
+                self.HUM_MIN = values['minValue']
+                self.HUM_MAX = values['maxValue']
         self.INTERVAL = api_data['settings']['measureDuration']
+
+    def _give_led_signal(self, values):
+        """Light the LED to signal if measured data breaks critical values."""
+        if (
+            (values['temperature'][0] > self.TEMP_MAX) or
+            (values['humidity'][0] > self.HUM_MAX) or
+            (values['temperature'][0] < self.TEMP_MIN) or
+            (values['humidity'][0] < self.HUM_MIN)
+        ):
+            for i in range(0, 3):
+                self.LED_RED.off()
+                sleep(1)
+                self.LED_RED.on()
+                sleep(1)
+        else:
+            for i in range(0, 3):
+                self.LED_GREEN.off()
+                sleep(1)
+                self.LED_GREEN.on()
+                sleep(1)
 
     def measure_and_post(self):
         """Measure data and post to the API."""
@@ -47,19 +70,6 @@ class Tempstation():
         self.SENSOR.measure()
         values['temperature'] = [self.SENSOR.temperature(), 1]
         values['humidity'] = [self.SENSOR.humidity(), 2]
-        if (
-            (values['temperature'][0] > self.TEMP_MAX) or
-            (values['humidity'][0] > self.HUM_MAX) or
-            (values['temperature'][0] < self.TEMP_MIN) or
-            (values['humidity'][0] < self.HUM_MIN)
-        ):
-            self.LED_RED.off()
-            sleep(2)
-            self.LED_RED.on()
-        else:
-            self.LED_GREEN.off()
-            sleep(2)
-            self.LED_GREEN.on()
 
         for key in values:
             data_dict = {}
@@ -72,13 +82,15 @@ class Tempstation():
             )
             print("Sending", key, resp.status_code, resp.text)
         self.LED_BLUE.on()
+        sleep(2)
+        self._give_led_signal(values)
 
 
 def main():
     """Starter function."""
     temp_stat = Tempstation()
     temp_stat.initialize_controller_data()
-    sleep(5)
+    sleep(2)
     while True:
         temp_stat.measure_and_post()
         sleep(temp_stat.INTERVAL)

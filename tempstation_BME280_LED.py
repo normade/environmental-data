@@ -66,7 +66,12 @@ class Tempstation():
             sleep(1)
 
     def set_up_sensor(self):
-        """Set up the BME280 sensor."""
+        """
+        Set up the BME280 sensor.
+
+        It's necessary to scan for the IC2 address and give it to the
+        constructor of the BME280 (see driver file bme280.py).
+        """
         i2c = machine.I2C(scl=self.SCL, sda=self.SDA)
         address = i2c.scan()
         self.BME = bme280.BME280(i2c=i2c, address=address[0])
@@ -93,7 +98,7 @@ class Tempstation():
 
     def _give_led_signal(self, values):
         """
-        Light the LED if measured values are outside of critical values.
+        Light the LED to signal if measured data breaks critical values.
 
         - magenta: pressure is too low or high
         - red: temperature is too low or high
@@ -181,7 +186,7 @@ def main():
     temp_stat.check_leds()
     temp_stat.set_up_sensor()
     temp_stat.initialize_controller_data()
-    sleep(5)
+    sleep(2)
     while True:
         temp_stat.measure_and_post()
         sleep(temp_stat.INTERVAL)
