@@ -64,6 +64,7 @@ class Tempstation():
                 sleep(1)
                 led_color[0].on()
             sleep(1)
+        print("LED lights are ready.")
 
     def set_up_sensor(self):
         """
@@ -75,6 +76,7 @@ class Tempstation():
         i2c = machine.I2C(scl=self.SCL, sda=self.SDA)
         address = i2c.scan()
         self.BME = bme280.BME280(i2c=i2c, address=address[0])
+        print("Sensor is set up.")
 
     def initialize_controller_data(self):
         """Assign controller values given by the API."""
@@ -95,6 +97,7 @@ class Tempstation():
                 self.PRES_MAX = values['maxValue']
 
         self.INTERVAL = api_data['settings']['measureDuration']
+        print("Received and assigned controller values from the API.")
 
     def _give_led_signal(self, values):
         """
@@ -163,6 +166,7 @@ class Tempstation():
         values['pressure'] = [data[1], 3]
         self.LED_BLUE_ONBOARD.off()
         self.LED_BLUE.off()
+        print("Measured the following: ", values)
         for key in values:
             data_dict = {}
             data_dict['value'] = values[key][0]
