@@ -1,4 +1,4 @@
-"""A tempstation for posting data to an API."""
+"""A tempstation for the DHT22 sensor posting data to an API."""
 import credentials
 import dht
 import ujson
