@@ -43,6 +43,7 @@ class Tempstation():
         self.LED_GREEN = machine.Pin(15, machine.Pin.OUT)
         self.LED_GREEN.on()
         sleep(2)
+        print("Pins are set up.")
 
     def check_leds(self):
         """Check if the RGB led is working."""
