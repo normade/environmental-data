@@ -40,8 +40,10 @@ class Tempstation():
         """Assign controller values given by the API."""
         api_data = urequests.get(credentials.get_controller_data.format(
             hardware_id=self.MAC_ADDRESS)).json()
+        print("Received following API data: ", api_data)
         self.ID = api_data['id']
         critical_values = api_data['location']['criticalValues']
+
         for values in critical_values:
             if(values['id'] == 1):
                 self.TEMP_MIN = values['minValue']
@@ -50,7 +52,7 @@ class Tempstation():
                 self.HUM_MIN = values['minValue']
                 self.HUM_MAX = values['maxValue']
         self.INTERVAL = api_data['settings']['measureDuration']
-        print("Received and assigned controller values from the API.")
+        print("Assigned controller values from the API.")
 
     def _give_led_signal(self, values):
         """Light the LED to signal if measured data breaks critical values."""
