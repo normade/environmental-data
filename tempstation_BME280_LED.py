@@ -83,6 +83,7 @@ class Tempstation():
         """Assign controller values given by the API."""
         api_data = urequests.get(credentials.get_controller_data.format(
             hardware_id=self.MAC_ADDRESS)).json()
+        print("Received following API data: ", api_data)
         self.ID = api_data['id']
         self.critical_values = api_data['location']['criticalValues']
 
@@ -98,7 +99,7 @@ class Tempstation():
                 self.PRES_MAX = values['maxValue']
 
         self.INTERVAL = api_data['settings']['measureDuration']
-        print("Received and assigned controller values from the API.")
+        print("Assigned controller values from the API.")
 
     def _give_led_signal(self, values):
         """
