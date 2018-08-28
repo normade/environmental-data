@@ -13,20 +13,28 @@ from utime import sleep
 class Tempstation():
     """Tempstation according to the Tempstation API."""
 
-    SENSOR = dht.DHT22(Pin(4))
-    LED_BLUE = Pin(2, Pin.OUT)
-    LED_BLUE.on()
-    LED_RED = Pin(13, Pin.OUT)
-    LED_RED.on()
-    LED_GREEN = Pin(12, Pin.OUT)
-    LED_GREEN.on()
     MAC_ADDRESS = str(hexlify(WLAN().config('mac')).decode())
+    SENSOR = None
     ID = 0
     TEMP_MIN = 0
     TEMP_MAX = 0
     HUM_MIN = 0
     HUM_MAX = 0
     INTERVAL = 0
+    LED_BLUE = None
+    LED_RED = None
+    LED_GREEN = None
+
+    def set_up_pins(self):
+        """Set up all necessary pins on the board."""
+        self.SENSOR = dht.DHT22(Pin(4))
+        self.LED_BLUE = Pin(2, Pin.OUT)
+        self.LED_BLUE.on()
+        self.LED_RED = Pin(13, Pin.OUT)
+        self.LED_RED.on()
+        self.LED_GREEN = Pin(12, Pin.OUT)
+        self.LED_GREEN.on()
+        print("Pins are set up.")
 
     def initialize_controller_data(self):
         """Assign controller values given by the API."""
@@ -42,6 +50,7 @@ class Tempstation():
                 self.HUM_MIN = values['minValue']
                 self.HUM_MAX = values['maxValue']
         self.INTERVAL = api_data['settings']['measureDuration']
+        print("Received and assigned controller values from the API.")
 
     def _give_led_signal(self, values):
         """Light the LED to signal if measured data breaks critical values."""
@@ -70,7 +79,7 @@ class Tempstation():
         self.SENSOR.measure()
         values['temperature'] = [self.SENSOR.temperature(), 1]
         values['humidity'] = [self.SENSOR.humidity(), 2]
-
+        print("Measured the following: ", values)
         for key in values:
             data_dict = {}
             data_dict['value'] = values[key][0]
@@ -89,6 +98,7 @@ class Tempstation():
 def main():
     """Starter function."""
     temp_stat = Tempstation()
+    temp_stat.set_up_pins()
     temp_stat.initialize_controller_data()
     sleep(2)
     while True:
