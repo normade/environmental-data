@@ -28,11 +28,14 @@ class Tempstation():
         api_data = urequests.get(credentials.get_controller_data.format(
             hardware_id=self.MAC_ADDRESS)).json()
         self.ID = api_data['id']
-        self.critical_values = api_data['location']['criticalValues']
-        self.TEMP_MIN = api_data['location']['criticalValues'][0]['minValue']
-        self.TEMP_MAX = api_data['location']['criticalValues'][0]['maxValue']
-        self.HUM_MIN = api_data['location']['criticalValues'][1]['minValue']
-        self.HUM_MAX = api_data['location']['criticalValues'][1]['maxValue']
+        critical_values = api_data['location']['criticalValues']
+        for values in critical_values:
+            if(values['id'] == 1):
+                self.TEMP_MIN = values['minValue']
+                self.TEMP_MAX = values['maxValue']
+            if(values['id'] == 2):
+                self.HUM_MIN = values['minValue']
+                self.HUM_MAX = values['maxValue']
         self.INTERVAL = api_data['settings']['measureDuration']
 
     def measure_and_post(self):
@@ -59,7 +62,7 @@ def main():
     """Starter function."""
     temp_stat = Tempstation()
     temp_stat.initialize_controller_data()
-    sleep(5)
+    sleep(2)
     while True:
         temp_stat.measure_and_post()
         sleep(temp_stat.INTERVAL)
