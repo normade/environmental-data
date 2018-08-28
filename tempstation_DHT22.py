@@ -15,6 +15,7 @@ class Tempstation():
 
     SENSOR = dht.DHT22(Pin(4))
     LED_BLUE = Pin(2, Pin.OUT)
+    LED_BLUE.on()
     MAC_ADDRESS = str(hexlify(WLAN().config('mac')).decode())
     ID = 0
     TEMP_MIN = 0
@@ -27,6 +28,7 @@ class Tempstation():
         """Assign controller values given by the API."""
         api_data = urequests.get(credentials.get_controller_data.format(
             hardware_id=self.MAC_ADDRESS)).json()
+        print("Received following API data: ", api_data)
         self.ID = api_data['id']
         critical_values = api_data['location']['criticalValues']
         for values in critical_values:
@@ -37,6 +39,7 @@ class Tempstation():
                 self.HUM_MIN = values['minValue']
                 self.HUM_MAX = values['maxValue']
         self.INTERVAL = api_data['settings']['measureDuration']
+        print("Assigned controller values from the API.")
 
     def measure_and_post(self):
         """Measure data and post to the API."""
@@ -45,6 +48,7 @@ class Tempstation():
         self.SENSOR.measure()
         values['temperature'] = [self.SENSOR.temperature(), 1]
         values['humidity'] = [self.SENSOR.humidity(), 2]
+        print("Measured the following: ", values)
         for key in values:
             data_dict = {}
             data_dict['value'] = values[key][0]
